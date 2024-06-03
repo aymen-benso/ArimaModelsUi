@@ -47,8 +47,8 @@ y_train, y_test = y[:train_size], y[train_size:]
 yhat = model.predict(X_test)
 print(yhat)
 """
-X_test = [[[0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1]]]
+X_test = [[[2025, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1]]]
 
 X_test = np.array(X_test)
-yhat = predict(load_model(), X_test)
-print(yhat)
+
+print(predict(load_model(), X_test))

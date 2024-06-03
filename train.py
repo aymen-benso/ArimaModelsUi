@@ -92,18 +92,8 @@ best_epochs = best_params['epochs']
 
 final_model = create_model()
 final_model.fit(X_train, y_train, epochs=best_epochs, batch_size=best_batch_size, verbose=0)
-'''# Define and train the LSTM model
-model = Sequential()
 
-#model.add(LSTM(units=50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
-#model.add(LSTM(units=50))
-model.add(Bidirectional(LSTM(units=64, dropout=0.2, recurrent_dropout=0.2,
-                               input_shape=(X_train.shape[1], X_train.shape[2]))))
-
-model.add(Dense(1))  # Output layer for consumption prediction
-model.compile(optimizer='adam', loss='mean_squared_error')
-model.fit(X_train, y_train, epochs=100, batch_size=64, verbose=1)
-'''
+# Step 8: Evaluate the model
 lstm_model = Sequential()
 lstm_model.add(Bidirectional(LSTM(100, activation='relu', return_sequences=True, kernel_regularizer=l2(0.001)), input_shape=(time_steps, X_train.shape[2])))
 lstm_model.add(Dropout(0.3))
@@ -131,15 +121,7 @@ print('Forecasted Values:', forecast)
 # Calculate Mean Absolute Error (MAE)
 mae = mean_absolute_error(df['consomation'][-len(forecast):], forecast)
 print('Mean Absolute Error (MAE):', mae)
-# Plot forecast vs actual values
-'''plt.figure(figsize=(10, 6))
-plt.plot(df.index[-len(forecast):], forecast, label='Forecast')
-plt.plot(df.index[-len(forecast):], df['consomation'][-len(forecast):], label='Actual')
-plt.xlabel('Year')
-plt.ylabel('Energy Consumption')
-plt.title('Forecast vs Actual Energy Consumption')
-plt.legend()
-plt.show()'''
+# Calculate Mean Squared Error (MSE)
 # Forecast next 10 years
 future_time_steps = 10
 future_forecast = []
