@@ -17,12 +17,8 @@ class DataRequest(BaseModel):
 app = FastAPI()
 
 
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-]
+origins = ["*"]
 
-# Allow requests from your React frontend origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
