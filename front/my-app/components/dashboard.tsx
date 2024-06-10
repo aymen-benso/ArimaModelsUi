@@ -1,19 +1,45 @@
 import { useState, useEffect } from "react";
+
 import axios from "axios";
+
 import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
+
 import { ResponsiveLine } from "@nivo/line";
+
 import { Login } from "@/components/login";
+
 import useLoginStore from "@/State";
+
+import { parseISO } from 'date-fns';
 
 export function Dashboard() {
   const [years, setYears] = useState(10);
   const [forecast, setForecast] = useState<number[]>([]);
   const { username, isLoggedIn, login, logout } = useLoginStore();
+  const [activeMainMenu, setActiveMainMenu] = useState<string | null>(null);
+  const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<{ x: string; y: number }[]>([]);
+  const csvFilePath = "Residentiel_ Liquide.csv";
 
-
-
+  useEffect(() => {
+    axios.get(`http://localhost:8000/${csvFilePath}`)
+      .then(response => {
+        const data = response.data;
+        console.log(data);
+        const chartData = data.map((item: any) => ({ x: item["year"], y: parseFloat(item["consomation"]) }));
+        
+        setChartData(chartData);
+        console.log("Data: ", chartData);
+      })
+      .catch(error => {
+        console.error('There was an error!', error);
+      });
+  }, []);
+  
 
   useEffect(() => {
     const data = {
@@ -21,7 +47,7 @@ export function Dashboard() {
     };
 
     for (let i = 0; i < years; i++) {
-      data.data.push([[ 2025+i , 4540+i*100,100+i*10,21+i,256+i,254,129,8173+i*1000,6734+i*1000]]);
+      data.data.push([[2025 + i, 4540 + i * 100, 100 + i * 10, 21 + i, 256 + i, 254, 129, 8173 + i * 1000, 6734 + i * 1000]]);
     }
 
     console.log(data);
@@ -44,7 +70,37 @@ export function Dashboard() {
       <Login />
     )
   }
-  
+
+  const menuData = [
+    {
+      name: "énergie",
+      icon: MapPinIcon,
+      subSections: [
+        {
+          name: "industriel",
+          subItems: ["gas", "Electricité", "Liquide"]
+        },
+        {
+          name: "transport",
+          subItems: ["gas", "Electricité", "Liquide"]
+        },
+        {
+          name: "menage",
+          subItems: ["gas", "Electricité","Liquide"]
+        }
+      ]
+    }
+  ];
+
+  const handleMainMenuClick = (menuName: string) => {
+    setActiveMainMenu(menuName === activeMainMenu ? null : menuName);
+    setActiveSubMenu(null);
+  };
+
+  const handleSubMenuClick = (subMenuName: string) => {
+    setActiveSubMenu(subMenuName === activeSubMenu ? null : subMenuName);
+  };
+
   return (
     <div className="flex h-screen w-full">
       <div className="bg-white text-black w-64 p-4 flex flex-col">
@@ -52,49 +108,47 @@ export function Dashboard() {
           <h1 className="text-xl font-bold">Time Series Model</h1>
         </div>
         <nav className="flex-1 space-y-2">
-          <div className="group relative">
-            <button className="flex items-center w-full px-4 py-2 rounded-md hover:bg-white focus:outline-none focus:bg-white">
-              <FolderIcon className="w-5 h-5 mr-2" />
-              <span>secteurs</span>
-              <ChevronRightIcon className="w-5 h-5 ml-auto transform group-hover:rotate-90 transition-transform" />
-            </button>
-            <div className="absolute left-full top-0 mt-0 w-64 bg-white rounded-md shadow-lg z-10 hidden group-hover:block">
-              <div className="p-4 space-y-2">
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                industrielle
-                </Link>
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                transport
-                </Link>
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                menage
-                </Link>
-              </div>
+          {menuData.map((menuItem) => (
+            <div key={menuItem.name} className="relative">
+              <button
+                className="flex items-center w-full px-4 py-2 rounded-md hover:bg-white focus:outline-none focus:bg-gray-200"
+                onClick={() => handleMainMenuClick(menuItem.name)}
+              >
+                <menuItem.icon className="w-5 h-5 mr-2" />
+                <span>{menuItem.name}</span>
+                <ChevronRightIcon className="w-5 h-5 ml-auto transform transition-transform" style={{ transform: activeMainMenu === menuItem.name ? 'rotate(90deg)' : '' }} />
+              </button>
+              {activeMainMenu === menuItem.name && (
+                <div className="absolute left-full top-0 mt-0 w-64 bg-white rounded-md shadow-lg z-10">
+                  <div className="p-4 space-y-2">
+                    {menuItem.subSections.map((subSection) => (
+                      <div key={subSection.name} className="relative">
+                        <button
+                          className="flex items-center w-full px-4 py-2 rounded-md hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
+                          onClick={() => handleSubMenuClick(subSection.name)}
+                        >
+                          <FolderIcon className="w-5 h-5 mr-2" />
+                          <span>{subSection.name}</span>
+                          <ChevronRightIcon className="w-5 h-5 ml-auto transform transition-transform" style={{ transform: activeSubMenu === subSection.name ? 'rotate(90deg)' : '' }} />
+                        </button>
+                        {activeSubMenu === subSection.name && (
+                          <div className="absolute left-full top-0 mt-0 w-64 bg-white rounded-md shadow-lg z-10">
+                            <div className="p-4 space-y-2">
+                              {subSection.subItems.map((subItem) => (
+                                <Link key={subItem} className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
+                                  {subItem}
+                                </Link>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-          <div className="group relative">
-            <button className="flex items-center w-full px-4 py-2 rounded-md hover:bg-white focus:outline-none focus:bg-gray-200">
-              <MapPinIcon className="w-5 h-5 mr-2" />
-              <span>énergie</span>
-              <ChevronRightIcon className="w-5 h-5 ml-auto transform group-hover:rotate-90 transition-transform" />
-            </button>
-            <div className="absolute left-full top-0 mt-0 w-64 bg-white rounded-md shadow-lg z-10 hidden group-hover:block">
-              <div className="p-4 space-y-2">
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                gas
-                </Link>
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                Electricité
-                </Link>
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                Solide
-                </Link>
-                <Link className="block px-4 py-2 rounded-md hover:bg-gray-200" href="#">
-                Liquide
-                </Link>
-              </div>
-            </div>
-          </div>
+          ))}
         </nav>
       </div>
       <div className="flex-1 bg-gray-100 dark:bg-gray-200 p-6">
@@ -119,7 +173,7 @@ export function Dashboard() {
               <Button>Forecast</Button>
             </div>
           </div>
-          <LineChart className="aspect-[16/9]" farray={forecast} />
+          <LineChart className="aspect-[16/9]" farray={forecast} data={chartData} />
         </div>
       </div>
     </div>
@@ -184,36 +238,35 @@ function FolderIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-function LineChart({ farray, ...props }: { farray: number[] }) {
-  console.log("farray: ", farray); // Output: "farray: []"
-  const forecastData = farray.map((value, index) => ({ x: 2025 + index, y: value }));
-  
+
+function LineChart({ farray, data, ...otherProps }: { farray: number[], data: { x: string; y: number }[] }) {
+  console.log("farray: ", farray); 
+  // Convert the forecast data to an array of objects with Date objects for x values
+  const forecastData = farray.map((value, index) => ({ x: new Date(2025 + index, 0, 1), y: value }));
+  // Convert the input data to an array of objects with Date objects for x values
+  const formattedData = data.map((item) => ({ x: parseISO(item.x), y: item.y }));
+  console.log("formattedData: ", formattedData);
   return (
-    <div {...props}>
+    <div {...otherProps}>
       <ResponsiveLine
         data={[
           {
             id: "normal",
-            data: [
-              { x: 2019, y: 4750 },
-              { x: 2020, y: 4950 },
-              { x: 2021, y: 5221 },
-              { x: 2022, y: 5067 },
-              { x: 2023, y: 5234 },
-              { x: 2024, y: 5472 },
-            ],
+            data: formattedData,
           },
           {
             id: "forecast",
             data: [
-              { x: 2024, y: 5472 },
+              { x: new Date(2024, 0, 1), y: 5472 },
               ...forecastData,
             ],
           },
         ]}
         margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
         xScale={{
-          type: "point",
+          type: "time",
+          format: "%Y-%m-%d", // You may adjust this format based on your date string format
+          precision: "day",
         }}
         yScale={{
           type: "linear",
@@ -221,6 +274,7 @@ function LineChart({ farray, ...props }: { farray: number[] }) {
         axisTop={null}
         axisRight={null}
         axisBottom={{
+          format: "%Y-%m-%d", // Adjust the format as needed
           tickSize: 0,
           tickPadding: 16,
         }}
@@ -256,6 +310,7 @@ function LineChart({ farray, ...props }: { farray: number[] }) {
     </div>
   );
 }
+
 
 function LogOutIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
