@@ -1,17 +1,11 @@
 import requests
 
-url = "http://localhost:8000/predict/"
+base_url = "http://localhost:8000"  # Replace with your actual base URL
+file_name = "Industrie_ELECTRICITE.csv"  # Replace with your desired file name
+year = "2022"  # Replace with your desired year
 
-data = {
-    "data": [
-        [
-            [2025,45400000,1000000,21,256,254,129,8173,67345]
-        ],
-        [
-            [2025,45400000,1000000,21,256,254,129,8173,67345]
-        ]
-    ]
-}
-
-response = requests.post(url, json=data)
-print(response.json())
+response = requests.get(f"{base_url}/consumption/{file_name}/{year}")
+if response.status_code == 200:
+    print("Success:", response.json())
+else:
+    print("Error:", response.status_code, response.text)

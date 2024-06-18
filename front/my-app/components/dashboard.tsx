@@ -20,17 +20,19 @@ import { parseISO } from 'date-fns';
 interface DashboardProps {
   csvFilePath: string;
   csvModelPath: string;
+  coef : number;
 }
 
 
-export function Dashboard({ csvFilePath, csvModelPath }: DashboardProps) {
+export function Dashboard({ csvFilePath, csvModelPath, coef }: DashboardProps) {
   const [years, setYears] = useState(10);
   const [forecast, setForecast] = useState<number[]>([]);
   const { username, isLoggedIn, login, logout } = useLoginStore();
   const [activeMainMenu, setActiveMainMenu] = useState<string | null>(null);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
   const [chartData, setChartData] = useState<{ x: string; y: number }[]>([]);
-  
+  const num = coef;
+  console.log("num: ", num);
   console.log("csvFilePath: ", csvFilePath);
   console.log("csvModelPath: ", csvModelPath);
   
@@ -54,25 +56,36 @@ export function Dashboard({ csvFilePath, csvModelPath }: DashboardProps) {
   
 
   useEffect(() => {
-    const data = {
-      model_name: csvModelPath,
-      data: [] as number[],
-    };
-  
-    for (let i = 0; i < years; i++) {
-      data.data.push(980 + i);
-    }
-  
-    axios.post(`http://localhost:8000/predict/`, data)
-      .then(response => {
+    async function fetchPrediction() {
+      const data = {
+        model_name: csvModelPath,
+        data: 
+        
+        Array.from({ length: years }, (_, i) => ({
+          year: 2024 + i,
+          feature_1: 10000 + i * 1000,
+          feature_2: 10000 + i * 1000,
+          feature_3: 10000 + i * 1000,
+          feature_4: 10000 + i * 1000,
+          feature_5: 10000 + i * 1000,
+          feature_6: 10000 + i * 1000,
+          feature_7: 10000 + i * 1000,
+          feature_8: 10000 + i * 1000,
+        } )),
+      };
+
+      try {
+        const response = await axios.post(`http://localhost:8000/predict/`, data);
         console.log(response.data);
-        const newForecast = response.data.prediction;
+        const newForecast = response.data.predictions;
+        console.log("newForecast: ", newForecast);
         setForecast(newForecast);
         console.log("Forecast: ", newForecast);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('There was an error!', error);
-      });
+      }
+    }
+    fetchPrediction();
   }, [years]);
   
 
@@ -86,11 +99,13 @@ export function Dashboard({ csvFilePath, csvModelPath }: DashboardProps) {
 
   return (
 
-      <div className="flex-1 bg-gray-100 dark:bg-gray-200 p-6">
-        <header className="bg-white dark:bg-gray-900 shadow-sm flex items-center justify-between px-6 py-4 mb-6">
+      <div className="flex-1 bg-gray-100 dark:bg-gray-100 p-6">
+        <header className="bg-white shadow-sm flex items-center justify-between px-6 py-4 mb-6 border-radius-5xl">
           <h1 className="text-xl font-bold">Forecasting Model</h1>
           <div className="flex items-center space-x-4">
             <Button size="icon" variant="ghost">
+
+              
               <LogOutIcon className="w-5 h-5" />
               <span className="sr-only">Logout</span>
             </Button>
@@ -100,15 +115,19 @@ export function Dashboard({ csvFilePath, csvModelPath }: DashboardProps) {
             </Button>
           </div>
         </header>
-        <div className="bg-white dark:bg-gray-400 shadow-sm p-6 mb-6">
+        <div className="bg-white dark:bg-gray-200 shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold">Forecasting Model</h2>
             <div className="flex items-center space-x-4">
-              <Input className="w-32" placeholder="Enter years to forecast" type="number" value={years} onChange={(e) => setYears(parseInt(e.target.value))} />
-              <Button>Forecast</Button>
+              <Input className="w-32" placeholder="Enter years to forecast" type="number" value={years} max={10} onChange={(e) => setYears(parseInt(e.target.value))} />
+              <Button
+              
+              style={{color: "white"}}
+              >
+                Forecast
+              </Button>
             </div>
           </div>
-          <LineChart className="aspect-[16/9]" farray={forecast} data={chartData} />
+          <LineChart className="aspect-[16/9]" farray={forecast} data={chartData} coef={num} />
         </div>
       </div>
     
@@ -137,10 +156,10 @@ function ArrowLeftIcon(props: React.SVGProps<SVGSVGElement>) {
 
 
 
-function LineChart({ farray, data, ...otherProps }: { farray: number[], data: { x: string; y: number }[] }) {
+function LineChart({ farray, data,coef, ...otherProps }: { farray: number[], data: { x: string; y: number }[] , coef: number}) {
   console.log("farray: ", farray); 
   // Convert the forecast data to an array of objects with Date objects for x values
-  const forecastData = farray.map((value, index) => ({ x: new Date(2024 , 1 + index, 1), y: value }));
+  const forecastData = farray.map((value, index) => ({ x: new Date(2024 + index, 0, 1), y: value * coef }));
   // Convert the input data to an array of objects with Date objects for x values
   const formattedData = data.map((item) => ({ x: parseISO(item.x), y: item.y }));
   console.log("formattedData: ", formattedData);
@@ -155,12 +174,12 @@ function LineChart({ farray, data, ...otherProps }: { farray: number[], data: { 
           {
             id: "forecast",
             data: [
-              { x: new Date(2024, 0, 1), y: 86.7 },
+              { x: new Date(2022, 1, 1), y: 12819 },
               ...forecastData,
             ],
           },
         ]}
-        margin={{ top: 10, right: 10, bottom: 40, left: 40 }}
+        margin={{ top: 10, right: 0, bottom: 40, left: 40 }}
         xScale={{
           type: "time",
           format: "%Y-%m-%d", // You may adjust this format based on your date string format
@@ -191,10 +210,12 @@ function LineChart({ farray, data, ...otherProps }: { farray: number[], data: { 
               borderRadius: "9999px",
             },
             container: {
-              fontSize: "12px",
+              fontSize: "10px",
               textTransform: "capitalize",
               borderRadius: "6px",
               color: "#000",
+              padding: "20px",
+              margin: "0px 290px 0px 0px",
             },
           },
           grid: {
