@@ -1,16 +1,14 @@
 "use client";
 import { Dashboard } from "@/components/dashboard";
 import Image from "next/image";
+import  ChartComponent  from "@/components/chartfin";
 
 export default function Home() {
   return (
-    <div>
-      <Image
-        src="/vercel.svg"
-        alt="Vercel Logo"
-        width={72}
-        height={16}
-      />
-    </div>
+    <>
+      <Dashboard  csvFilePath="Finale.csv" csvModelPath="" coef={0} />
+      <ChartComponent />    
+    </>
+
   );
 }

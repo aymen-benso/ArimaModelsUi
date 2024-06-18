@@ -43,6 +43,7 @@ csv_files = [
     "Transport_FINALE.csv",
     "Transport_GAZEUX.csv",
     "Transport_Liquides.csv",
+    "Finale.csv"
 ]
 
 models_files =[
