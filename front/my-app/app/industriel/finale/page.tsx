@@ -6,7 +6,7 @@ import ChartComponent from "@/components/chartsind";
 export default function Home() {
   return ( 
     <>
-    <Dashboard csvFilePath="Industrie_FINALE.csv" csvModelPath="industrie_finale_model.h5" coef={110000} />
+    <Dashboard csvFilePath="Industrie_FINALE.csv" csvModelPath="industrie_finale_model.h5" coef={220000} />
     <ChartComponent />
     </>
   );

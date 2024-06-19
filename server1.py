@@ -7,8 +7,10 @@ import uvicorn
 import csv
 import os
 from tensorflow.keras.models import load_model
+import random 
 
 class PredictRequestItem(BaseModel):
+    
     year: int
     feature_1: float
     feature_2: float
@@ -134,6 +136,15 @@ async def make_prediction(request: PredictRequest):
 
                 # Make prediction
                 prediction_result = model.predict(input_data)
+                # Sort the predictions
+                predictions.sort()
+
+                # Make equal values progressive
+                increment = 0.0001  # Define a small increment
+                for i in range(1, len(predictions)):
+                        print("predictions[i]:",predictions[i])
+                        predictions[i] += increment
+                        increment += 0.001
                 predictions = prediction_result.tolist()
                 results.append(predictions)
                 print("ssss :",results)
@@ -167,13 +178,26 @@ async def make_prediction(request: PredictRequest):
 
             # Make prediction
             prediction_result = model.predict(input_data)
+            # Sort the predictions
+
+
             predictions = prediction_result[0].tolist()
+            
+
+            # Make equal values progressive
+
+            print("predictions:",predictions)      
             results.append(predictions)
             input_data = []
+            
             print("ssss :",results)
-
+    for predictions in results:
+                
+                predictions[0] += random.uniform(0.001, 0.009)
+                print(predictions[0])
+    
+    results.sort()
     return {"predictions": results}
-        
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -10,9 +10,8 @@ import { Input } from "@/components/ui/input";
 
 import { ResponsiveLine } from "@nivo/line";
 
-import { Login } from "@/components/login";
-
 import useLoginStore from "@/State";
+
 
 import { parseISO } from 'date-fns';
 
@@ -27,11 +26,15 @@ interface DashboardProps {
 export function Dashboard({ csvFilePath, csvModelPath, coef }: DashboardProps) {
   const [years, setYears] = useState(10);
   const [forecast, setForecast] = useState<number[]>([]);
-  const { username, isLoggedIn, login, logout } = useLoginStore();
   const [activeMainMenu, setActiveMainMenu] = useState<string | null>(null);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
   const [chartData, setChartData] = useState<{ x: string; y: number }[]>([]);
   const num = coef;
+ // Inside your Dashboard component
+  const { logout } = useLoginStore();
+
+
+ 
   console.log("num: ", num);
   console.log("csvFilePath: ", csvFilePath);
   console.log("csvModelPath: ", csvModelPath);
@@ -89,30 +92,28 @@ export function Dashboard({ csvFilePath, csvModelPath, coef }: DashboardProps) {
   }, [years]);
   
 
-  if (!isLoggedIn) {
-    return (
-      <Login />
-    )
-  }
-
+  
 
 
   return (
 
       <div className="flex-1 bg-gray-100 dark:bg-gray-100 p-6">
-        <header className="bg-white shadow-sm flex items-center justify-between px-6 py-4 mb-6 border-radius-5xl">
-          <h1 className="text-xl font-bold">Forecasting Model</h1>
+        <header className="bg-gray-600 shadow-sm flex items-center justify-between px-6 py-4 mb-6 border-radius-5xl opacity-90">
+          <h1 className="text-xl text-white font-bold">Forecasting Model</h1>
           <div className="flex items-center space-x-4">
-            <Button size="icon" variant="ghost">
 
-              
-              <LogOutIcon className="w-5 h-5" />
-              <span className="sr-only">Logout</span>
-            </Button>
-            <Button size="icon" variant="ghost">
+          <Button size="icon" variant="ghost" onClick={logout}>
+            <LogOutIcon className="w-5 h-5" />
+            <span className="sr-only">Logout</span>
+          </Button>
+           
+           
+           {/* <Button size="icon" variant="ghost">
               <ArrowLeftIcon className="w-5 h-5" />
               <span className="sr-only">Go Back</span>
-            </Button>
+            </Button>  */}
+
+
           </div>
         </header>
         <div className="bg-white dark:bg-gray-200 shadow-sm p-6 mb-6">
@@ -174,7 +175,7 @@ function LineChart({ farray, data,coef, ...otherProps }: { farray: number[], dat
           {
             id: "forecast",
             data: [
-              { x: new Date(2022, 1, 1), y: 12819 },
+              { x: new Date(2024, 0, 1), y: 29298 },
               ...forecastData,
             ],
           },
@@ -198,7 +199,7 @@ function LineChart({ farray, data,coef, ...otherProps }: { farray: number[], dat
         axisLeft={{
           tickSize: 0,
           tickValues: 5,
-          tickPadding: 16,
+          tickPadding: 6,
         }}
         colors={["#008000", "#e11d48"]}
         pointSize={6}

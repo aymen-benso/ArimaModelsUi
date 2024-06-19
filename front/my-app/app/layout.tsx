@@ -18,8 +18,13 @@ export default function RootLayout({
 
   const menuData = [
     {
-      name: "App",
+      name: (
+        <Link href="/">
+          App
+        </Link>
+      ),
       icon: MapPinIcon,
+
       subSections: [
         {
           name: "industriel",
@@ -40,12 +45,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+
         <div style={{ backgroundImage: `url('nihad.jpg')` }} className="bg-cover bg-center">
+        {isLoggedIn ? (
           <div className="flex h-screen w-full bg-url('nihad.jpg') bg-cover bg-center">
-            {isLoggedIn ? (
-              <div className="bg-white text-black w-64 p-4 flex flex-col">
-                <div className="flex items-center justify-between mb-6">
-                  <h1 className="text-xl font-bold">Time Series Model</h1>
+            
+              <div className="bg-white text-black w-1/8 p-4 flex flex-col">
+                <div className="flex items-center justify-between mb-6 p-2 bg-gray-600 rounded-md opacity-90">
+                  <img src="/logo.png" className="w-4 h-4" />
+                  <h2 className="font-bold text-white font-sans p-2">EnerForcast</h2>
                 </div>
                 <nav className="flex-1 space-y-2">
                   {menuData.map((menuItem) => (
@@ -67,12 +75,17 @@ export default function RootLayout({
                     </div>
                   ))}
                 </nav>
+                
+              </div>
+              <div className="flex-1 bg-cover bg-center bg-gradient-to-r from-gray-200 to-gray-400 p-4 overflow-y-auto opacity-90
+              
+              ">{children}</div>
               </div>
             ) : (
               <Login />
             )}
-            <div className="flex-1">{children}</div>
-          </div>
+            
+          
         </div>
       </body>
     </html>

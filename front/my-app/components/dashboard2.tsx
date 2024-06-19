@@ -16,6 +16,9 @@ import useLoginStore from "@/State";
 
 import { parseISO } from 'date-fns';
 
+
+
+
 // Define a type for the props
 interface DashboardProps {
   csvFilePath: string;
@@ -31,6 +34,8 @@ export function Dashboard({ csvFilePath, csvModelPath, coef }: DashboardProps) {
   const [activeMainMenu, setActiveMainMenu] = useState<string | null>(null);
   const [activeSubMenu, setActiveSubMenu] = useState<string | null>(null);
   const [chartData, setChartData] = useState<{ x: string; y: number }[]>([]);
+  
+  
   const num = coef;
   console.log("num: ", num);
   console.log("csvFilePath: ", csvFilePath);
@@ -99,19 +104,23 @@ export function Dashboard({ csvFilePath, csvModelPath, coef }: DashboardProps) {
   return (
 
       <div className="flex-1 bg-gray-100 dark:bg-gray-100 p-6">
-        <header className="bg-white shadow-sm flex items-center justify-between px-6 py-4 mb-6 border-radius-5xl">
-          <h1 className="text-xl font-bold">Forecasting Model</h1>
+        <header className="bg-gray-600 shadow-sm flex items-center justify-between px-6 py-4 mb-6 border-radius-5xl opacity-90">
+          <h1 className="text-xl text-white font-bold">Forecasting Model</h1>
           <div className="flex items-center space-x-4">
-            <Button size="icon" variant="ghost">
-
-              
-              <LogOutIcon className="w-5 h-5" />
-              <span className="sr-only">Logout</span>
-            </Button>
-            <Button size="icon" variant="ghost">
+            
+            
+          <Button size="icon" variant="ghost" onClick={logout}>
+            <LogOutIcon className="w-5 h-5" />
+            <span className="sr-only">Logout</span>
+          </Button>
+         
+         
+           {/* <Button size="icon" variant="ghost">
               <ArrowLeftIcon className="w-5 h-5" />
               <span className="sr-only">Go Back</span>
-            </Button>
+            </Button>  */}
+
+
           </div>
         </header>
         <div className="bg-white dark:bg-gray-200 shadow-sm p-6 mb-6">
